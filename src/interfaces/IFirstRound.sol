@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.26;
 
+import {IAccessControl} from 'interfaces/IAccessControl.sol';
+
 /**
  * @title IFirstRound
  * @dev IFirstRound interface
@@ -12,7 +14,7 @@ interface IFirstRound {
 
   /**
    * @notice Proposal struct
-   * @param proposalID The ID of the proposal
+   * @param proposalId The Id of the proposal
    * @param description The description of the proposal
    * @param budget The budget of the proposal
    * @param neededVotes The needed votes to approve the proposal
@@ -42,10 +44,10 @@ interface IFirstRound {
   /**
    * @notice Event emitted when a proposal is voted
    * @param _user The address of the user
-   * @param _proposalID The ID of the proposal
+   * @param _proposalId The ID of the proposal
    * @param _totalVotes The total votes of the proposal
    */
-  event ProposalVoted(address indexed _user, uint256 indexed _proposalID, uint256 _totalVotes);
+  event ProposalVoted(address indexed _user, uint256 indexed _proposalId, uint256 _totalVotes);
 
   /*///////////////////////////////////////////////////////////////
                               ERRORS
@@ -72,6 +74,43 @@ interface IFirstRound {
   error UserIsNotRegisteredBefore();
 
   /*///////////////////////////////////////////////////////////////
+                              VIEW
+  //////////////////////////////////////////////////////////////*/
+
+  /**
+   * @notice Get the proposal time
+   * @return _PROPOSAL_TIME The proposal time
+   */
+  function PROPOSAL_TIME() external view returns (uint256 _PROPOSAL_TIME);
+
+  /**
+   * @notice Get the access control contract
+   * @return _accessControl The access control contract
+   */
+  function accessControl() external view returns (IAccessControl _accessControl);
+
+  /**
+   * @notice Get the proposal ID
+   * @return _proposalId The proposal ID
+   */
+  function proposalId() external view returns (uint256 _proposalId);
+
+  /**
+   * @notice Get the proposal by ID
+   * @param _proposalId The ID of the proposal
+   * @return _proposal The proposal
+   */
+  function proposal(uint256 _proposalId) external view returns (Proposal memory _proposal);
+
+  /**
+   * @notice Check if a user voted
+   * @param _user The address of the user
+   * @param _proposalId The ID of the proposal
+   * @return _voted True if the user voted
+   */
+  function userVoted(address _user, uint256 _proposalId) external view returns (bool _voted);
+
+  /*///////////////////////////////////////////////////////////////
                               LOGIC
   //////////////////////////////////////////////////////////////*/
 
@@ -90,6 +129,7 @@ interface IFirstRound {
 
   /**
    * @notice Finalize proposals
+   * @param _proposalId The ID of the proposal
    */
-  function finalizeProposals() external;
+  function finalizeProposal(uint256 _proposalId) external;
 }
