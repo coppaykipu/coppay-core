@@ -10,9 +10,32 @@ interface IVault {
                               EVENTS
   //////////////////////////////////////////////////////////////*/
 
+  /**
+   * @notice Event emitted when a budget is locked
+   * @param _amount The amount locked
+   */
+  event BudgetLocked(uint256 _amount);
+
+  /**
+   * @notice Event emitted when a budget is unlocked
+   * @param _amount The amount unlocked
+   */
+  event BudgetUnlocked(uint256 _amount);
+
+  /**
+   * @notice Event emitted when a budget is updated
+   * @param _amount The amount updated
+   */
+  event BudgetUpdated(uint256 _amount);
+
   /*///////////////////////////////////////////////////////////////
                               ERRORS
   //////////////////////////////////////////////////////////////*/
+
+  /**
+   * @notice Error emitted when a user does not have enough votes
+   */
+  error InsufficientVotes();
 
   /*///////////////////////////////////////////////////////////////
                               VIEWS
@@ -22,9 +45,8 @@ interface IVault {
    * @notice Check if a user has enough votes
    * @param _user The address of the user
    * @param _numVotes The number of votes
-   * @return _hasVotes True if the user has enough votes
    */
-  function haveVotes(address _user, uint256 _numVotes) external view returns (bool _hasVotes);
+  function haveVotes(address _user, uint256 _numVotes) external view;
 
   /*///////////////////////////////////////////////////////////////
                               LOGIC
