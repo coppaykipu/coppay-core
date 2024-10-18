@@ -5,11 +5,15 @@ interface IAccessControl {
     error NotRegistered(address usuario);
     error NotAdmin(address usuario);
 
+    event Approved(address indexed user);
+    event Disapproved(address indexed user);
+    event Submitted(address indexed user, uint256 numOperationMP);
+
     function isRegistered(address user) external view returns (bool);
     function isRegisteredBefore(address user, uint256 timestamp) external view returns (bool);
     function getRegisteredUsersCount() external view returns (uint256);
     function isAdmin(address user) external view returns (bool);
-    function submit(address user, uint256) external;
+    function submit(address user, uint256 numOperationMP) external;
     function approveUser(address user) external;
     function disapproveUser(address user) external;
-}
+} 
