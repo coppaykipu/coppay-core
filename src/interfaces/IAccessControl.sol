@@ -35,13 +35,14 @@ interface IAccessControl {
 
   /**
    * @notice Error emitted when a user is not registered
+   * @param _user The address of the user that is not registered
    */
   error NotRegistered(address _user);
 
   /**
    * @notice Error emitted when a user is already registered
    */
-  error NotAdmin(address _user);
+  error NotAdmin();
 
   /*///////////////////////////////////////////////////////////////
                               VIEWS
