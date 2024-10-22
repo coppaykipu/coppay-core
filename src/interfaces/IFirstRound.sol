@@ -2,6 +2,7 @@
 pragma solidity 0.8.26;
 
 import {IAccessControl} from 'interfaces/IAccessControl.sol';
+import {ISecondRound} from 'interfaces/ISecondRound.sol';
 
 /**
  * @title IFirstRound
@@ -22,7 +23,7 @@ interface IFirstRound {
    * @param startDate The start date of the proposal
    */
   struct Proposal {
-    uint256 proposalID;
+    uint256 proposalId;
     string description;
     uint256 budget;
     uint256 neededVotes;
@@ -81,7 +82,7 @@ interface IFirstRound {
    * @notice Get the proposal time
    * @return _PROPOSAL_TIME The proposal time
    */
-  function PROPOSAL_TIME() external view returns (uint256 _PROPOSAL_TIME);
+  function _PROPOSAL_TIME() external view returns (uint256 _PROPOSAL_TIME);
 
   /**
    * @notice Get the access control contract
@@ -90,17 +91,23 @@ interface IFirstRound {
   function accessControl() external view returns (IAccessControl _accessControl);
 
   /**
+   * @notice Get the second round contract
+   * @return _secondRound The second round contract
+   */
+  function secondRound() external view returns (ISecondRound _secondRound); 
+
+  /**
    * @notice Get the proposal ID
    * @return _proposalId The proposal ID
    */
-  function proposalId() external view returns (uint256 _proposalId);
+  function proposalIdCount() external view returns (uint256 _proposalId);
 
   /**
    * @notice Get the proposal by ID
    * @param _proposalId The ID of the proposal
    * @return _proposal The proposal
    */
-  function proposal(uint256 _proposalId) external view returns (Proposal memory _proposal);
+  function proposals(uint256 _proposalId) external view returns (Proposal memory _proposal);
 
   /**
    * @notice Check if a user voted
@@ -126,10 +133,4 @@ interface IFirstRound {
    * @param proposalId The ID of the proposal
    */
   function voteProposal(uint256 proposalId) external;
-
-  /**
-   * @notice Finalize proposals
-   * @param _proposalId The ID of the proposal
-   */
-  function finalizeProposal(uint256 _proposalId) external;
 }
