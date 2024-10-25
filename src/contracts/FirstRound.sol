@@ -5,7 +5,7 @@ import {IAccessControl, IFirstRound, ISecondRound } from 'interfaces/IFirstRound
 
 contract FirstRound is IFirstRound {
   /// @inheritdoc IFirstRound
-  uint256 public constant _PROPOSAL_TIME = 7 days;
+  uint256 public constant PROPOSAL_TIME = 7 days;
   /// @inheritdoc IFirstRound
   IAccessControl public accessControl;
   /// @inheritdoc IFirstRound
@@ -13,31 +13,30 @@ contract FirstRound is IFirstRound {
   /// @inheritdoc IFirstRound
   uint256 public proposalIdCount;
   /// @inheritdoc IFirstRound
-  mapping(uint256 _proposalId => Proposal _proposal) proposals;
+  mapping(uint256 _proposalId => Proposal _proposal) public proposals;
   /// @inheritdoc IFirstRound
-  mapping(address _user => mapping(uint256 _proposalId => bool _voted)) userVoted;
+  mapping(address _user => mapping(uint256 _proposalId => bool _voted)) public userVoted;
 
   constructor(IAccessControl _accessControl, ISecondRound _secondRound) {
     accessControl = _accessControl;
     secondRound = _secondRound;
   }
   
-    modifier OnlyUserRegistered(){
-        if(!accessControl.isRegistered(msg.sender)) revert NotUserRegistered();
-        _;
-    
-    }
+  modifier OnlyUserRegistered(){
+      if(!accessControl.isRegistered(msg.sender)) revert NotUserRegistered();
+      _;
+  }
 
   /// @inheritdoc IFirstRound
   function createProposal(string memory _description, uint256 _budget) public OnlyUserRegistered() {
-    if (bytes(_description).length == 0 || _budget == 0) revert   ParamNotFound();
+    if (bytes(_description).length == 0 || _budget == 0) revert ParamNotFound();
     proposalIdCount++;
     
     Proposal memory newProposal = Proposal({
       proposalId: proposalIdCount,
       description: _description,
       budget: _budget,
-      neededVotes: _calculateNeededVotes(),
+      neededVotes: _calculateNeededVotes() + 1,
       startDate: block.timestamp,
       totalVotes: 0
     });
@@ -48,24 +47,36 @@ contract FirstRound is IFirstRound {
 
   /// @inheritdoc IFirstRound
   function voteProposal(uint256 _proposalId) public OnlyUserRegistered() {
-    if (!accessControl.isRegisteredBefore(msg.sender, proposals[_proposalId].startDate)) revert UserIsNotRegisteredBefore();
-    if (userVoted[msg.sender][_proposalId]) revert UserAlreadyVoted();
-    userVoted[msg.sender][_proposalId] = true;
-    proposals[_proposalId].totalVotes++;
+    Proposal memory _proposal =  proposals[_proposalId];
+    if (_proposal.proposalId == 0) revert();//agregar modifier
     
+    if (!accessControl.isRegisteredBefore(msg.sender, _proposal.startDate)) revert UserIsNotRegisteredBefore();
+    if (block.timestamp > _proposal.startDate + PROPOSAL_TIME) revert();//agregar modifier
     
-    if (proposals[_proposalId].totalVotes > proposals[_proposalId].neededVotes){
-      _finalizeProposal(_proposalId);
+    bool _userVoted = userVoted[msg.sender][_proposalId];
+    if (_userVoted) revert UserAlreadyVoted();
+    
+    _userVoted = true;
+    _proposal.totalVotes++;
+    
+    if (_proposal.totalVotes > _proposal.neededVotes){
+      _finalizeProposal(_proposal);
+      delete proposals[_proposalId];
     }
-    emit ProposalVoted(msg.sender, _proposalId, proposals[_proposalId].totalVotes);
+    else{
+      proposals[_proposalId] = _proposal; 
+      userVoted[msg.sender][_proposalId] = _userVoted;
+    }
+
+    emit ProposalVoted(msg.sender, _proposalId, _proposal.totalVotes);
   }
 
   /**
    * @notice Finalize proposals
-   * @param _proposalId The ID of the proposal
+   * @param _proposal The proposal
    */
-  function _finalizeProposal(uint256 _proposalId) internal {
-    secondRound.proposalAccepted(_proposalId);
+  function _finalizeProposal(Proposal memory _proposal) internal {
+    secondRound.proposalAccepted(_proposal);
   }
 
   /**
@@ -73,8 +84,16 @@ contract FirstRound is IFirstRound {
    * @return _neededVotes The needed votes
    */
   function _calculateNeededVotes() private view returns (uint256 _neededVotes) {
-  
-    return accessControl.getRegisteredUsersCount()/2;
-  
+    _neededVotes = accessControl.getRegisteredUsersCount()/2;
+  }
+
+  function getProposals() external view returns (Proposal[] memory _proposals){
+    Proposal memory _proposal;
+    for(uint256 _i; _i < proposalIdCount;_i++){
+      _proposal = proposals[_i];
+      if (_proposal.proposalId != 0){
+        _proposals.push(_proposal);
+      }
+    }
   }
 }

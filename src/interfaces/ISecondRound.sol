@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.26;
 
+import {IFirstRound} from 'interfaces/IFirstRound.sol';
 interface ISecondRound {
   /*///////////////////////////////////////////////////////////////
                               STRUCTS
@@ -45,7 +46,7 @@ interface ISecondRound {
    * @notice Accept a proposal
    * @param _proposalId The ID of the proposal
    */
-  function proposalAccepted(uint256 _proposalId) external;
+  function proposalAccepted(IFirstRound.Proposal memory _proposal) external;
 
   /**
    * @notice Complete a proposal which has had enough votes

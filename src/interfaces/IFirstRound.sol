@@ -117,6 +117,12 @@ interface IFirstRound {
    */
   function userVoted(address _user, uint256 _proposalId) external view returns (bool _voted);
 
+  /**
+   * @notice Get the active proposals
+   * @return _proposals The active proposals
+   */
+  function getProposals() external view returns (Proposal[] memory _proposals);
+
   /*///////////////////////////////////////////////////////////////
                               LOGIC
   //////////////////////////////////////////////////////////////*/
