@@ -1,68 +1,93 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.26;
 
-import {IAccessControl, IFirstRound} from 'interfaces/IFirstRound.sol';
+import {IAccessControl, IFirstRound, ISecondRound} from 'interfaces/IFirstRound.sol';
 
-contract FirstRoundModule is IFirstRound {
-  /// @inheritdoc IAccessControl
-  uint256 public constant _PROPOSAL_TIME = 7 days;
-  /// @inheritdoc IAccessControl
+contract FirstRound is IFirstRound {
+  /// @inheritdoc IFirstRound
+  uint256 public constant PROPOSAL_TIME = 7 days;
+  /// @inheritdoc IFirstRound
   IAccessControl public accessControl;
-  /// @inheritdoc IAccessControl
-  uint256 public _proposalId;
-  /// @inheritdoc IAccessControl
-  mapping(uint256 _proposalId => Proposal _proposal) proposals;
-  /// @inheritdoc IAccessControl
-  mapping(address _user => mapping(uint256 _proposalId => bool _voted)) userVoted;
+  /// @inheritdoc IFirstRound
+  ISecondRound public secondRound;
+  /// @inheritdoc IFirstRound
+  uint256 public proposalIdCount;
+  /// @inheritdoc IFirstRound
+  mapping(uint256 _proposalId => Proposal _proposal) public proposals;
+  /// @inheritdoc IFirstRound
+  mapping(address _user => mapping(uint256 _proposalId => bool _voted)) public userVoted;
 
-  constructor(IAccessControl addressAccessControl) {
-    accessControl = addressAccessControl;
+  constructor(IAccessControl _accessControl, ISecondRound _secondRound) {
+    accessControl = _accessControl;
+    secondRound = _secondRound;
   }
-  /*
-    modifier OnlyUserRegistered(){
-        if(!accessControl.isRegistered(msg.sender)) revert NotUserRegistered();
-        _;
-    
-    */
 
-  /// @inheritdoc IAccessControl
-  function createProposal(string memory _description, uint256 _budget) public /*OnlyUserRegistered()*/ {
-    if (bytes(_description).length == 0 || _budget == 0) revert paramNotFound();
-    _proposalId++;
+  /// @inheritdoc IFirstRound
+  function getProposals() external view returns (Proposal[] memory _proposals) {
+    Proposal memory _proposal;
+    uint256 _proposalsCount;
+
+    // Count the number of active proposals
+    for (uint256 _i; _i < proposalIdCount; _i++) {
+      _proposal = proposals[_i];
+      if (_proposal.proposalId != 0) {
+        _proposals[_proposalsCount] = _proposal;
+        _proposalsCount++;
+      }
+    }
+  }
+
+  /// @inheritdoc IFirstRound
+  function createProposal(string memory _description, uint256 _budget) external {
+    // Check if the user is registered
+    accessControl.isRegistered(msg.sender);
+    // Check if the description and budget are provided
+    if (bytes(_description).length == 0 || _budget == 0) revert ParamNotFound();
+    proposalIdCount++;
+
+    // Create a new proposal
     Proposal memory newProposal = Proposal({
-      idProposal: _proposalId,
+      proposalId: proposalIdCount,
       description: _description,
       budget: _budget,
-      neededVotes: _neededVotes(),
+      neededVotes: accessControl.getNeededVotes(block.timestamp),
       startDate: block.timestamp,
       totalVotes: 0
     });
-    proposals[_proposalId] = newProposal;
-    emit proposalCreated(msg.sender, newProposal);
+
+    // Save the proposal and emit an event
+    proposals[proposalIdCount] = newProposal;
+    emit ProposalCreated(msg.sender, newProposal);
   }
 
-  /// @inheritdoc IAccessControl
-  function voteProposal(uint256 proposalId) public /*OnlyUserRegistered()*/ {
-    /*if (!accessControl.isRegisteredBefore(msg.sender, proposals[proposalId].startDate)) revert userIsNotRegisteredBefore();*/
-    if (userVoted[msg.sender][proposalId]) revert userAlreadyVoted();
-    userVoted[msg.sender][proposalId] = true;
-    proposals[proposalId].totalVotes++;
-    emit proposalVoted(msg.sender, proposalId, proposals[proposalId].totalVotes);
-  }
+  /// @inheritdoc IFirstRound
+  function voteProposal(uint256 _proposalId) external {
+    Proposal memory _proposal = proposals[_proposalId];
 
-  /// @inheritdoc IAccessControl
-  function finalizeProposal(uint256 _proposalId) external {
-    _proposalId = 1;
-  }
+    // Check if the proposal exists
+    if (_proposal.proposalId == 0) revert ProposalNotFound();
 
-  /**
-   * @notice Get the needed votes to approve a proposal
-   * @return _neededVotes The needed votes
-   */
-  function _calculateNeededVotes() private view returns (uint256 _neededVotes) {
-    /*
-        return accessControl.getRegisteredUsersCount()/2;
-        */
-    return 1;
+    // Check if the user is registered before the proposal start date and the proposal is not expired
+    accessControl.isRegisteredBefore(msg.sender, _proposal.startDate);
+    if (block.timestamp > _proposal.startDate + PROPOSAL_TIME) revert ProposalExpired();
+
+    // Check if the user already voted
+    bool _userVoted = userVoted[msg.sender][_proposalId];
+    if (_userVoted) revert UserAlreadyVoted();
+
+    userVoted[msg.sender][_proposalId] = true;
+
+    _proposal.totalVotes++;
+
+    // If the proposal has enough votes, finalize it else update the proposal
+    if (_proposal.totalVotes > _proposal.neededVotes) {
+      secondRound.proposalPassRound(_proposal);
+      delete proposals[_proposalId];
+    } else {
+      proposals[_proposalId] = _proposal;
+    }
+
+    // Emit an event
+    emit ProposalVoted(msg.sender, _proposalId, _proposal.totalVotes);
   }
 }
