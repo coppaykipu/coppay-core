@@ -2,10 +2,11 @@
 pragma solidity 0.8.26;
 
 import {IAccessControl} from 'interfaces/IAccessControl.sol';
+import {ISecondRound} from 'interfaces/ISecondRound.sol';
 
 /**
  * @title IFirstRound
- * @dev IFirstRound interface
+ * @notice Interface for the FirstRound contract
  */
 interface IFirstRound {
   /*///////////////////////////////////////////////////////////////
@@ -22,7 +23,7 @@ interface IFirstRound {
    * @param startDate The start date of the proposal
    */
   struct Proposal {
-    uint256 proposalID;
+    uint256 proposalId;
     string description;
     uint256 budget;
     uint256 neededVotes;
@@ -64,14 +65,14 @@ interface IFirstRound {
   error ParamNotFound();
 
   /**
-   * @notice Error emitted when a user is not registered
+   * @notice Error emitted when a proposal is not found
    */
-  error NotUserRegistered();
+  error ProposalNotFound();
 
   /**
-   * @notice Error emitted when a user is not registered
+   * @notice Error emitted when a proposal is expired
    */
-  error UserIsNotRegisteredBefore();
+  error ProposalExpired();
 
   /*///////////////////////////////////////////////////////////////
                               VIEW
@@ -90,17 +91,38 @@ interface IFirstRound {
   function accessControl() external view returns (IAccessControl _accessControl);
 
   /**
+   * @notice Get the second round contract
+   * @return _secondRound The second round contract
+   */
+  function secondRound() external view returns (ISecondRound _secondRound);
+
+  /**
    * @notice Get the proposal ID
    * @return _proposalId The proposal ID
    */
-  function proposalId() external view returns (uint256 _proposalId);
+  function proposalIdCount() external view returns (uint256 _proposalId);
 
   /**
    * @notice Get the proposal by ID
    * @param _proposalId The ID of the proposal
-   * @return _proposal The proposal
+   * @return _id The ID of the proposal
+   * @return _description The description of the proposal
+   * @return _budget The budget of the proposal
+   * @return _neededVotes The needed votes to approve the proposal
+   * @return _totalVotes The total votes of the proposal
+   * @return _startDate The start date of the proposal
    */
-  function proposal(uint256 _proposalId) external view returns (Proposal memory _proposal);
+  function proposals(uint256 _proposalId)
+    external
+    view
+    returns (
+      uint256 _id,
+      string calldata _description,
+      uint256 _budget,
+      uint256 _neededVotes,
+      uint256 _totalVotes,
+      uint256 _startDate
+    );
 
   /**
    * @notice Check if a user voted
@@ -109,6 +131,12 @@ interface IFirstRound {
    * @return _voted True if the user voted
    */
   function userVoted(address _user, uint256 _proposalId) external view returns (bool _voted);
+
+  /**
+   * @notice Get the active proposals
+   * @return _proposals The active proposals
+   */
+  function getProposals() external view returns (Proposal[] memory _proposals);
 
   /*///////////////////////////////////////////////////////////////
                               LOGIC
@@ -126,10 +154,4 @@ interface IFirstRound {
    * @param proposalId The ID of the proposal
    */
   function voteProposal(uint256 proposalId) external;
-
-  /**
-   * @notice Finalize proposals
-   * @param _proposalId The ID of the proposal
-   */
-  function finalizeProposal(uint256 _proposalId) external;
 }
