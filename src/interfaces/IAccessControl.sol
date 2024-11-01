@@ -126,10 +126,9 @@ interface IAccessControl {
 
   /**
    * @notice Get the number of votes needed based on a timestamp
-   * @param _timestamp The timestamp to calculate the needed votes
    * @return _neededVotes The number of needed votes
    */
-  function getNeededVotes(uint256 _timestamp) external view returns (uint256 _neededVotes);
+  function getNeededVotes() external view returns (uint256 _neededVotes);
 
   /**
    * @notice Get the number of quadratic votes needed based on a timestamp
