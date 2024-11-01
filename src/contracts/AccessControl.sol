@@ -62,18 +62,8 @@ contract AccessControl is IAccessControl {
   }
 
   /// @inheritdoc IAccessControl
-  function getNeededVotes(uint256 _timestamp) external view returns (uint256 _neededVotes) {
-    address _user;
-    uint256 _usersCount;
-
-    // Calculate the number of users that have registered before the timestamp
-    for (uint256 _i; _i < _usersList.length(); _i++) {
-      _user = _usersList.at(_i);
-      if (registrationTimestamps[_user] < _timestamp) {
-        _usersCount++;
-      }
-    }
-    _neededVotes = _usersCount / 2;
+  function getNeededVotes() external view returns (uint256 _neededVotes) {
+    _neededVotes = _usersList.length() / 2;
   }
 
   /// @inheritdoc IAccessControl
