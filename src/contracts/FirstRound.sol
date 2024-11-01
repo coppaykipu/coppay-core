@@ -50,7 +50,7 @@ contract FirstRound is IFirstRound {
       proposalId: proposalIdCount,
       description: _description,
       budget: _budget,
-      neededVotes: accessControl.getNeededVotes(block.timestamp),
+      neededVotes: accessControl.getNeededVotes(),
       startDate: block.timestamp,
       totalVotes: 0
     });
