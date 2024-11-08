@@ -23,7 +23,7 @@ contract ExampleScript is Script {
     console.log('Connected with deployer: ', vm.addr(deployerPk));
 
     // Deploy AccessControl
-    AccessControl myContract = new AccessControl(adminAddress);
+    AccessControl myContract = new AccessControl();
     address myContractAddress = address(myContract);
     console.log('AccessControl contract address', myContractAddress);
 
