@@ -2,8 +2,9 @@
 pragma solidity 0.8.26;
 
 import {IAccessControl, IFirstRound, ISecondRound, IVault} from 'interfaces/ISecondRound.sol';
+import {Initializable} from '../utils/Initializable.sol';
 
-contract SecondRound is ISecondRound {
+contract SecondRound is ISecondRound, Initializable{
   /// @inheritdoc ISecondRound
   IAccessControl public accessControl;
   /// @inheritdoc ISecondRound
@@ -27,7 +28,8 @@ contract SecondRound is ISecondRound {
    * @param _vault The address of the vault contract
    * @param _firstRound The address of the first round contract
    */
-  constructor(IAccessControl _accessControl, IVault _vault, IFirstRound _firstRound) {
+  
+  function initializer(IAccessControl _accessControl, IVault _vault, IFirstRound _firstRound) external initializer{
     accessControl = _accessControl;
     vault = _vault;
     firstRound = _firstRound;

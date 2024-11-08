@@ -4,12 +4,13 @@ pragma solidity 0.8.26;
 import {IAccessControl} from 'interfaces/IAccessControl.sol';
 import {IFirstRound} from 'interfaces/IFirstRound.sol';
 import {IVault} from 'interfaces/IVault.sol';
+import {IInitializable} from '../utils/IInitializable.sol';
 
 /**
  * @title ISecondRound
  * @notice Interface for the second round contract
  */
-interface ISecondRound {
+interface ISecondRound is IInitializable {
   /*///////////////////////////////////////////////////////////////
                               EVENTS
   //////////////////////////////////////////////////////////////*/
