@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.26;
 
+import {IInitializable} from '../utils/IInitializable.sol';
 import {IAccessControl} from 'interfaces/IAccessControl.sol';
 import {ISecondRound} from 'interfaces/ISecondRound.sol';
 
@@ -8,7 +9,7 @@ import {ISecondRound} from 'interfaces/ISecondRound.sol';
  * @title IVault
  * @notice Interface for the Vault contract
  */
-interface IVault {
+interface IVault is IInitializable {
   /*///////////////////////////////////////////////////////////////
                               EVENTS
   //////////////////////////////////////////////////////////////*/

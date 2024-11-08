@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.26;
 
+import {Initializable} from '../utils/Initializable.sol';
 import {IAccessControl, ISecondRound, IVault} from 'interfaces/IVault.sol';
 
-contract Vault is IVault {
+contract Vault is IVault, Initializable {
   /// @inheritdoc IVault
   ISecondRound public secondRound;
   /// @inheritdoc IVault
@@ -16,11 +17,11 @@ contract Vault is IVault {
   mapping(uint256 _proposalId => uint256 _amount) public proposalsBudget;
 
   /**
-   * @notice Constructor
+   * @notice Initialize the contract
    * @param _secondRound The address of the second round contract
    * @param _accessControl The address of the access control contract
    */
-  constructor(ISecondRound _secondRound, IAccessControl _accessControl) {
+  function initialize(ISecondRound _secondRound, IAccessControl _accessControl) external initializer {
     secondRound = _secondRound;
     accessControl = _accessControl;
   }
