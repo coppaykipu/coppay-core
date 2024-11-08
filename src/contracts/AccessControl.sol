@@ -4,8 +4,9 @@ pragma solidity 0.8.26;
 import {Math} from '@openzeppelin/contracts/utils/math/Math.sol';
 import {EnumerableSet} from '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
 import {IAccessControl} from 'interfaces/IAccessControl.sol';
+import {Initializable} from '../utils/Initializable.sol';
 
-contract AccessControl is IAccessControl {
+contract AccessControl is IAccessControl, Initializable{
   using EnumerableSet for EnumerableSet.AddressSet;
   using Math for uint256;
 
@@ -32,7 +33,9 @@ contract AccessControl is IAccessControl {
    * @notice Constructor
    * @param _admin The address of the admin
    */
-  constructor(address _admin) {
+
+  function initialize(address _admin) external initializer{
+    if(_admin == address(0)) revert NotAdmin();
     admin = _admin;
   }
 
@@ -130,4 +133,5 @@ contract AccessControl is IAccessControl {
       emit Revoked(_user);
     }
   }
+  
 }
