@@ -3,7 +3,7 @@ pragma solidity 0.8.26;
 
 import {IAccessControl} from 'interfaces/IAccessControl.sol';
 import {ISecondRound} from 'interfaces/ISecondRound.sol';
-
+import {IInitializable} from '../utils/IInitializable.sol';
 /**
  * @title IFirstRound
  * @notice Interface for the FirstRound contract
