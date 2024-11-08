@@ -29,7 +29,7 @@ contract SecondRound is ISecondRound, Initializable{
    * @param _firstRound The address of the first round contract
    */
   
-  function initializer(IAccessControl _accessControl, IVault _vault, IFirstRound _firstRound) external initializer{
+  function initialize(IAccessControl _accessControl, IVault _vault, IFirstRound _firstRound) external initializer{
     accessControl = _accessControl;
     vault = _vault;
     firstRound = _firstRound;
