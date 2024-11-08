@@ -1,14 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.26;
 
-import {IInitializable} from '../utils/IInitializable.sol';
-
-
 /**
  * @title IAccessControl
  * @dev IAccessControl interface
  */
-interface IAccessControl is IInitializable{
+interface IAccessControl {
   /*///////////////////////////////////////////////////////////////
                               EVENTS
   //////////////////////////////////////////////////////////////*/
