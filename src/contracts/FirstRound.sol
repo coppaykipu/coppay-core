@@ -2,8 +2,9 @@
 pragma solidity 0.8.26;
 
 import {IAccessControl, IFirstRound, ISecondRound} from 'interfaces/IFirstRound.sol';
+import {Initializable} from '../utils/Initializable.sol';
 
-contract FirstRound is IFirstRound {
+contract FirstRound is IFirstRound,Initializable {
   /// @inheritdoc IFirstRound
   uint256 public constant PROPOSAL_TIME = 7 days;
   /// @inheritdoc IFirstRound
@@ -17,7 +18,7 @@ contract FirstRound is IFirstRound {
   /// @inheritdoc IFirstRound
   mapping(address _user => mapping(uint256 _proposalId => bool _voted)) public userVoted;
 
-  constructor(IAccessControl _accessControl, ISecondRound _secondRound) {
+  function initalize(IAccessControl _accessControl,ISecondRound _secondRound) external initializer(){
     accessControl = _accessControl;
     secondRound = _secondRound;
   }
